@@ -17,3 +17,8 @@ The file config/test.json will be created and all necessary parameter are stored
 
 ![alt tag]([https://raw.githubusercontent.com/bolek42/rsa-sdr/dev/doc/images/trace-raw.jpeg](https://github.com/JeremyGUILLAUME/screaming_channel_beta/blob/main/IMGs/30meters.png)
 
+In this case all 10 executions are clearly visible.
+
+![alt tag](https://raw.githubusercontent.com/bolek42/rsa-sdr/dev/doc/images/trace-raw.jpeg)
+
+To detect individual executions, a carrier that could act as a triggersignal is required.
