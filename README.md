@@ -13,3 +13,7 @@ This call will tune the SDR to 125.5MHz and will guide you through the following
 The file config/test.json will be created and all necessary parameter are stored in this file.
 
     python2 capture.py --config=config/test.json --dut=dut-openssl.py
+
+
+![alt tag]([https://raw.githubusercontent.com/bolek42/rsa-sdr/dev/doc/images/trace-raw.jpeg](https://github.com/JeremyGUILLAUME/screaming_channel_beta/blob/main/IMGs/30meters.png)
+
