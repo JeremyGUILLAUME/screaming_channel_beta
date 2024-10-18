@@ -1,0 +1,26 @@
+{
+    "collection" : {
+        "data_path" : "DATA/",
+        "pattern_name" : "/home/user/Documents/SCA/LIB/src/Patterns/pattern_",
+        "USRP_address" : "192.168.10.114",
+        "target_freq" : 528,
+        "sampling_rate" : 5e6,
+        "implementation" : "S",
+        "CP_length" : 894.409e-6,
+        "trace_name": "trace",
+        "time_div" : 10,
+        "nb_traces_profile" : 15000,
+        "nb_traces_attacks" : 5000,
+        "nb_attacks" 	    : 1
+        },
+
+    "analysis": {
+        "result_path" : "RES/",
+        "res_nb_traces"	    : 100,
+        "profile_name" : "profile",
+        "save_name" : "KeyRank",
+        "SOI_start" : 0,
+        "SOI_stop" : null,
+        "cutoff"   : 550e3,
+        "variable" : "p_xor_k"
+}	}
