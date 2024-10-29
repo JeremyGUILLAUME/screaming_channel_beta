@@ -61,16 +61,19 @@ drop_start=50e-3 #Time for the SDR to start the collection properly
 collection_time = CP_length * time_div_board + 0.005
 num_samps = int( (drop_start + collection_time) * sampling_rate)
 
-if USRP_address != "": 	usrp_ = uhd.usrp.MultiUSRP("addr="+USRP_address)
-else: 			usrp_ = uhd.usrp.MultiUSRP()
-SDR     = usrp.usrp_init(usrp_, target_freq, sampling_rate)
+usrp_1 = uhd.usrp.MultiUSRP("addr="+USRP_address[0])
+usrp_2 = uhd.usrp.MultiUSRP("addr="+USRP_address[1])
+SDR_1     = usrp.usrp_init(usrp_1, target_freq[0], sampling_rate)
+SDR_2     = usrp.usrp_init(usrp_2, target_freq[1], sampling_rate)
 BOARD 	= pca10040.init_PCA10040(time_div = time_div_board, power=0, plot_=True)
 
 
 
 #Load pattern for pattern recognition
-if pattern_name != "": pattern = np.load(data_directory+"PATTERNS/"+pattern_name+".npy")
-else: pattern = np.load("LIB/src/Patterns/pattern_%d.npy"%target_freq)
+if pattern_name[0] != "": pattern_1 = np.load(data_directory+"PATTERNS/"+pattern_name[0]+".npy")
+else: pattern_1 = np.load("LIB/src/Patterns/pattern_%d.npy"%target_freq[0])
+if pattern_name[1] != "": pattern_2 = np.load(data_directory+"PATTERNS/"+pattern_name[1]+".npy")
+else: pattern_2 = np.load("LIB/src/Patterns/pattern_%d.npy"%target_freq[1])
 
 
 
@@ -89,26 +92,34 @@ with click.progressbar(range(nb_traces)) as bar:
             pca10040.send_PCA10040_param(BOARD, 'P', plaintexts[index])
 
             while True:
-                usrp.usrp_start(SDR)
+                usrp.usrp_start(SDR_1)
+                usrp.usrp_start(SDR_2)
                 time.sleep(drop_start)
                 BOARD.write(str(implementation).encode())
                 time.sleep(collection_time)
-                usrp.usrp_stop(SDR)
+                usrp.usrp_stop(SDR_1)
+                usrp.usrp_stop(SDR_2)
 
-                rawTrace = usrp.usrp_get_data(SDR, num_samps, int(drop_start * sampling_rate) )
-                trace = extraction.extract_trace(rawTrace, CP_length, "pattern_recognition", time_div=time_div, pattern=pattern, sampling_rate=sampling_rate)
+                rawTrace_1 = usrp.usrp_get_data(SDR_1, num_samps, int(drop_start * sampling_rate) )
+                rawTrace_2 = usrp.usrp_get_data(SDR_2, num_samps, int(drop_start * sampling_rate) )
+                trace_1 = extraction.extract_trace(rawTrace_1, CP_length, "pattern_recognition", time_div=time_div, pattern=pattern_1, sampling_rate=sampling_rate)
+                trace_2 = extraction.extract_trace(rawTrace_2, CP_length, "pattern_recognition", time_div=time_div, pattern=pattern_2, sampling_rate=sampling_rate)
                 break
                 
             if int(args.plot)!=0:
-                plt.subplot(2,1,1)
+                plt.subplot(3,1,1)
                 plt.title("Pattern")
                 plt.plot(pattern)
-                plt.subplot(2,1,2)
-                plt.title("Trace")
-                plt.plot(trace)
+                plt.subplot(3,1,2)
+                plt.title("Trace 1")
+                plt.plot(trace_1)
+                plt.subplot(3,1,3)
+                plt.title("Trace 2")
+                plt.plot(trace_2)
                 plt.show()
             
-            np.save(data_directory+"TRACES/"+dataset_name+"/"+ "trace_%d_%d_%d.npy"%(target_freq, time_div, index), trace)
+            np.save(data_directory+"TRACES/"+dataset_name+"/"+ "trace_%d_%d_%d.npy"%(target_freq[0], time_div, index), trace_1)
+            np.save(data_directory+"TRACES/"+dataset_name+"/"+ "trace_%d_%d_%d.npy"%(target_freq[1], time_div, index), trace_2)
 
 pca10040.close_PCA10040(BOARD)
 

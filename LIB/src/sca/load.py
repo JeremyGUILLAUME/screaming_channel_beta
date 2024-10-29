@@ -1,6 +1,8 @@
 import numpy as np
 import sca.AES as AES
 
+
+
 def load_cp(filename, number):
     with open(filename + ".txt", "r") as f:
         data = ''
@@ -18,6 +20,7 @@ def load_cp(filename, number):
     return cp
 
 
+
 def load_k(filename):
     with open(filename + ".txt", "r") as f:
         data = f.readline()
@@ -26,6 +29,7 @@ def load_k(filename):
     #k = [ord(c) for c in data.decode('hex')] 
     k = [c for c in bytes.fromhex(data)]
     return k
+
 
 
 def load_traces(filename, number):

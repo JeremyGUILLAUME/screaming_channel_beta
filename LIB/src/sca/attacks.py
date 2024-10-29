@@ -38,48 +38,50 @@ def profiled_corr_attack(TRACES, PLAINTEXTS, PROFILE, guess_range="", variable="
     return LOG_PROBA 
 
 
-def pges(knownkey, LOG_PROBA, num_key_bytes=16):
-    pges = []
+
+def print_pges(knownkey, LOG_PROBA, num_key_bytes=16):
+    pge = []
     for byt in range(num_key_bytes):
         proba_order = np.argsort(LOG_PROBA[byt])[::-1]
-        pges.append( list(proba_order).index(knownkey[byt]) )
-    return pges
+        pge.append( list(proba_order).index(knownkey[byt]) )
 
-
-
-"""
-def profiled_corr_attack(TRACES, PLAINTEXTS, PROFILE, guess_range="", variable="p_xor_k", mask=0xff, num_key_bytes=16, nb_traces=0):
-    if nb_traces == 0:
-        nb_traces = len(TRACES)
-    TRACES_REDUCED = att_tls.reduce_trace(TRACES, PROFILE, num_key_bytes) 
-    if guess_range == "":
-        guess_range = range(256)
-
-    LOG_PROBA = [[0 for r in range(256)] for byt in range(num_key_bytes)]
-
+    bestguess = []
     for byt in range(num_key_bytes):
-        for guess in guess_range:
-            #clas = att_tls.compute_variable(PLAINTEXTS, guess, byt, variable)  #compute_variables(PLAINTEXTS, kguess, variable, mask, num_key_bytes):
-            clas = classify.compute_variables(PLAINTEXTS, [guess], variable=variable, mask=mask, range_key_bytes=[byt])[0]
-            leaks = np.asarray( [PROFILE[byt][clas[j]] for j in range(nb_traces) ]) 
+        bestguess.append( np.argmax(LOG_PROBA[byt]) )
 
-            r,p = pearsonr(leaks[:nb_traces], TRACES_REDUCED[byt][:nb_traces])
-            LOG_PROBA[byt][guess] = r
+    print("Best Key Guess: ", end=" ")
+    for b in bestguess: print(" %02x "%b, end=" ")
+    print("")
+    
+    print("Known Key:      ", end=" ")
+    for b in knownkey: print(" %02x "%b, end=" ")
+    print("")
+    
+    print("PGE:            ", end=" ")
+    for b in pge: print("%03d "%b, end=" ")
+    print("")
 
-    return LOG_PROBA 
+    print("SUCCESS:        ", end=" ")
+    nb_byt_recovered = 0
+    for g,r in zip(bestguess, knownkey):
+        if(g==r):
+            print("  1 ", end=" ")
+            nb_byt_recovered += 1
+        else:
+            print("  0 ", end=" ")
+    print("")
+    print("NUMBER OF CORRECT BYTES: %d"%nb_byt_recovered)
 
-def profiled_corr_attack(TRACES_REDUCED, PLAINTEXTS, PROFILE, start, stop, range_n, variable="p_xor_k", mask=0xff, num_key_bytes=16, nb_traces=0):
 
-    LOG_PROBA = [[[0 for r in range(256)] for byt in range(num_key_bytes)] for n in range(len(range_n))]
 
+def print_stats(knownkey, LOG_PROBA, num_key_bytes=16):
+    pge = []
     for byt in range(num_key_bytes):
-        for guess in range(256):
-            clas = att_tls.compute_variable(PLAINTEXTS[start:stop], guess, byt, variable)  #compute_variables(PLAINTEXTS, kguess, variable, mask, num_key_bytes):
-            leaks = np.asarray( [PROFILE[byt][clas[j]] for j in range(nb_traces) ]) 
-            for rg, n in zip(range_n, range(len(range_n))):
-                r,p = pearsonr(leaks[:rg], TRACES_REDUCED[byt][start:start+rg])
-                LOG_PROBA[n][byt][guess] = r
-    return LOG_PROBA 
-"""
+        proba_order = np.argsort(LOG_PROBA[byt])[::-1]
+        pge.append( list(proba_order).index(knownkey[byt]) )
 
+    print("")
+    print("Sorted PGEs: ", np.sort(pge)[::-1] )
+    print("Mean(PGEs): ", np.mean(pge) )
+    print("Std(PGEs): ", np.std(pge) )
 

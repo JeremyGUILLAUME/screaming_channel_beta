@@ -1,6 +1,4 @@
 import numpy as np
-import click
-from scipy import signal
 
 import sca.filters as filters
 
